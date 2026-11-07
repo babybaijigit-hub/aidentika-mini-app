@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учебный помощник</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="brand">AI</div>
+      <h1>Учебный помощник</h1>
+      <p>Помощь с темами, источниками и учебными проектами</p>
+    </header>
+
+    <form class="card" id="requestForm">
+      <label for="type">Что будем готовить?</label>
+      <select id="type" required>
+        <option>Реферат</option>
+        <option>Курсовая работа</option>
+        <option>СРС</option>
+        <option>Презентация</option>
+        <option>Объяснение темы</option>
+      </select>
+
+      <label for="topic">Тема</label>
+      <input id="topic" maxlength="300" placeholder="Например: История искусственного интеллекта" required>
+
+      <label for="subject">Предмет</label>
+      <input id="subject" maxlength="150" placeholder="Например: Информатика" required>
+
+      <label for="requirements">Требования преподавателя</label>
+      <textarea id="requirements" maxlength="2000" placeholder="Объём, структура и оформление"></textarea>
+
+      <button id="sendBtn" type="submit">Продолжить</button>
+      <p class="note">Сейчас приложение собирает запрос. Поиск источников добавим позже.</p>
+    </form>
+
+    <section class="result" id="result" aria-live="polite" hidden>
+      <h2>Запрос готов</h2>
+      <pre id="resultText"></pre>
+    </section>
+  </main>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
