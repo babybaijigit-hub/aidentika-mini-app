@@ -1,0 +1,13 @@
+services:
+  - type: worker
+    name: ai-study-assistant-bot
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBAPP_URL
+        value: https://babybaijigit-hub.github.io/aidentika-mini-app/
+      - key: DATABASE_PATH
+        value: /var/data/study_assistant.sqlite3

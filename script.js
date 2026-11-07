@@ -1,8 +1,12 @@
+"""Local structured study plan for the static Mini App (no API key required)."""
 document.addEventListener("DOMContentLoaded", () => {
   const tg = window.Telegram?.WebApp;
   const form = document.getElementById("requestForm");
   const result = document.getElementById("result");
-  const resultText = document.getElementById("resultText");
+  const resultContent = document.getElementById("resultContent");
+  const copyButton = document.getElementById("copyBtn");
+  const sendButton = document.getElementById("sendBtn");
+  let currentPlan = "";
 
   if (tg) {
     tg.ready();
@@ -11,30 +15,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-
-    const data = {
-      type: document.getElementById("type").value,
-      topic: document.getElementById("topic").value.trim(),
-      subject: document.getElementById("subject").value.trim(),
-      requirements: document.getElementById("requirements").value.trim()
-    };
-
-    if (!data.topic || !data.subject) {
+    const kind = document.getElementById("type").value.trim();
+    const topic = document.getElementById("topic").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const requirements = document.getElementById("requirements").value.trim();
+    if (!topic || !subject) {
       form.reportValidity();
       return;
     }
 
-    resultText.textContent = [
-      `Тип: ${data.type}`,
-      `Тема: ${data.topic}`,
-      `Предмет: ${data.subject}`,
-      `Требования: ${data.requirements || "не указаны"}`
-    ].join("\n");
-    result.hidden = false;
+    const sections = [
+      ["Введение", `Объясните актуальность темы «${topic}», сформулируйте цель и задачи работы.`],
+      ["1. Основные понятия", `Дайте определения ключевым понятиям по предмету «${subject}».`],
+      ["2. Основная часть", `Раскройте тему «${topic}»: используйте проверенные факты, аргументы и примеры.`],
+      ["Заключение", "Подведите итоги и кратко ответьте на задачи, поставленные во введении."],
+      ["Источники", "Подберите реальные учебники и достоверные материалы; проверьте авторов, названия и даты публикации."]
+    ];
+    currentPlan = `${kind}: ${topic}\nПредмет: ${subject}\n\n` + sections.map(([title, text]) => `${title}\n${text}`).join("\n\n");
+    if (requirements) currentPlan += `\n\nТребования преподавателя: ${requirements}`;
+    currentPlan += "\n\nЭто план-заготовка, а не готовая академическая работа. Проверьте факты и требования преподавателя.";
 
-    // sendData works when the Mini App was opened from a Telegram bot keyboard.
-    if (tg) {
-      tg.sendData(JSON.stringify(data));
+    resultContent.replaceChildren();
+    for (const [title, text] of sections) {
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+      const paragraph = document.createElement("p");
+      paragraph.textContent = text;
+      resultContent.append(heading, paragraph);
+    }
+    if (requirements) {
+      const heading = document.createElement("h3");
+      heading.textContent = "Требования преподавателя";
+      const paragraph = document.createElement("p");
+      paragraph.textContent = requirements;
+      resultContent.append(heading, paragraph);
+    }
+    result.hidden = false;
+    sendButton.textContent = "План подготовлен";
+    result.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Telegram sendData is intentionally not called yet: backend bot integration is a later milestone.
+  });
+
+  copyButton.addEventListener("click", async () => {
+    if (!currentPlan) return;
+    try {
+      await navigator.clipboard.writeText(currentPlan);
+      copyButton.textContent = "Скопировано!";
+      setTimeout(() => { copyButton.textContent = "Скопировать план"; }, 1800);
+    } catch {
+      copyButton.textContent = "Не удалось скопировать";
     }
   });
 });
