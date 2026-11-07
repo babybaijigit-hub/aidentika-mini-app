@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Учебный помощник</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <main class="app">
-    <header class="header">
-      <div class="brand">AI</div>
-      <h1>Учебный помощник</h1>
-      <p>Помощь с темами, источниками и учебными проектами</p>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f7fb" />
+    <title>Учебный помощник</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div class="brand" aria-hidden="true">AI</div>
+        <h1>Учебный помощник</h1>
+        <p>План и материалы для учебной работы</p>
+      </header>
 
-    <form class="card" id="requestForm">
-      <label for="type">Что будем готовить?</label>
-      <select id="type" required>
-        <option>Реферат</option>
-        <option>Курсовая работа</option>
-        <option>СРС</option>
-        <option>Презентация</option>
-        <option>Объяснение темы</option>
-      </select>
+      <form class="card" id="requestForm">
+        <label for="type">Тип работы</label>
+        <select id="type" required>
+          <option>Реферат</option>
+          <option>Курсовая работа</option>
+          <option>СРС</option>
+          <option>Презентация</option>
+          <option>Объяснение темы</option>
+        </select>
 
-      <label for="topic">Тема</label>
-      <input id="topic" maxlength="300" placeholder="Например: История искусственного интеллекта" required>
+        <label for="topic">Тема</label>
+        <input id="topic" maxlength="300" placeholder="Например: История Кыргызстана" required />
 
-      <label for="subject">Предмет</label>
-      <input id="subject" maxlength="150" placeholder="Например: Информатика" required>
+        <label for="subject">Предмет</label>
+        <input id="subject" maxlength="150" placeholder="Например: История" required />
 
-      <label for="requirements">Требования преподавателя</label>
-      <textarea id="requirements" maxlength="2000" placeholder="Объём, структура и оформление"></textarea>
+        <label for="requirements">Требования преподавателя</label>
+        <textarea id="requirements" maxlength="2000" placeholder="Объём, структура и оформление"></textarea>
 
-      <button id="sendBtn" type="submit">Продолжить</button>
-      <p class="note">Сейчас приложение собирает запрос. Поиск источников добавим позже.</p>
-    </form>
+        <button id="sendBtn" type="submit">Подготовить план</button>
+      </form>
 
-    <section class="result" id="result" aria-live="polite" hidden>
-      <h2>Запрос готов</h2>
-      <pre id="resultText"></pre>
-    </section>
-  </main>
+      <section class="result" id="result" aria-live="polite" hidden>
+        <h2 id="resultTitle">План работы</h2>
+        <div id="resultContent"></div>
+        <button class="secondary-button" id="copyBtn" type="button">Скопировать план</button>
+        <p class="note">Это учебный план и заготовка для самостоятельной работы. Проверьте факты и требования преподавателя.</p>
+      </section>
+    </main>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="script.js"></script>
-</body>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
