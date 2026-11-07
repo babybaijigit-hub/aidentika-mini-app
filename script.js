@@ -6,8 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const resultContent = document.getElementById("resultContent");
   const copyButton = document.getElementById("copyBtn");
   const sendButton = document.getElementById("sendBtn");
-  let currentPlan = "";
 
+  // Fail visibly instead of throwing an unclear error if HTML and JS drift apart.
+  if (!form || !result || !resultContent || !copyButton || !sendButton) {
+    console.error("Mini App page is missing required form/result elements.");
+    return;
+  }
+
+  let currentPlan = "";
   if (tg) {
     tg.ready();
     tg.expand();
@@ -53,8 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
     result.hidden = false;
     sendButton.textContent = "План подготовлен";
     result.scrollIntoView({ behavior: "smooth", block: "start" });
-
-    // Telegram sendData is intentionally not called yet: backend bot integration is a later milestone.
   });
 
   copyButton.addEventListener("click", async () => {

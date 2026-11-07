@@ -8,13 +8,13 @@ from bot.keyboards import MENU_ITEMS, main_menu
 from bot.services.outlines import make_presentation_outline, make_work_outline
 
 router = Router()
-
 WORK_TYPES = [
     "Реферат", "Курсовая работа", "СРС", "Дипломная работа", "Эссе", "Доклад",
     "Научная статья", "Практическая работа", "Лабораторная работа", "Бизнес-план",
     "Исследовательский проект", "Отчёт по практике", "Сочинение", "Изложение",
     "Анализ литературного произведения", "Мотивационное письмо", "Резюме (CV)",
 ]
+LANGUAGES = ["Русский", "Кыргызский", "English"]
 
 
 class WorkForm(StatesGroup):
@@ -43,10 +43,6 @@ def options_keyboard(options: list[str]) -> ReplyKeyboardMarkup:
     )
 
 
-def menu_for(message: Message, webapp_url: str | None = None) -> ReplyKeyboardMarkup:
-    return main_menu(webapp_url)
-
-
 @router.message(F.text == "📚 Учебные работы")
 async def start_work(message: Message, state: FSMContext) -> None:
     await state.clear()
@@ -57,7 +53,7 @@ async def start_work(message: Message, state: FSMContext) -> None:
 @router.message(WorkForm.kind)
 async def work_kind(message: Message, state: FSMContext) -> None:
     if message.text not in WORK_TYPES:
-        await message.answer("Выберите вид работы кнопкой из списка.")
+        await message.answer("Выберите вид работы кнопкой из списка или нажмите «Отмена».")
         return
     await state.update_data(kind=message.text)
     await state.set_state(WorkForm.topic)
@@ -66,28 +62,43 @@ async def work_kind(message: Message, state: FSMContext) -> None:
 
 @router.message(WorkForm.topic)
 async def work_topic(message: Message, state: FSMContext) -> None:
-    await state.update_data(topic=(message.text or "").strip()[:300])
+    value = (message.text or "").strip()
+    if not value:
+        await message.answer("Тема не должна быть пустой. Напишите тему текстом:")
+        return
+    await state.update_data(topic=value[:300])
     await state.set_state(WorkForm.subject)
     await message.answer("Укажите предмет:")
 
 
 @router.message(WorkForm.subject)
 async def work_subject(message: Message, state: FSMContext) -> None:
-    await state.update_data(subject=(message.text or "").strip()[:150])
+    value = (message.text or "").strip()
+    if not value:
+        await message.answer("Предмет не должен быть пустым. Укажите предмет:")
+        return
+    await state.update_data(subject=value[:150])
     await state.set_state(WorkForm.volume)
     await message.answer("Укажите объём (например, 8 страниц):")
 
 
 @router.message(WorkForm.volume)
 async def work_volume(message: Message, state: FSMContext) -> None:
-    await state.update_data(volume=(message.text or "").strip()[:80])
+    value = (message.text or "").strip()
+    if not value:
+        await message.answer("Укажите объём, например: 8 страниц.")
+        return
+    await state.update_data(volume=value[:80])
     await state.set_state(WorkForm.language)
-    await message.answer("На каком языке подготовить план?", reply_markup=options_keyboard(["Русский", "Кыргызский", "English"]))
+    await message.answer("На каком языке подготовить план?", reply_markup=options_keyboard(LANGUAGES))
 
 
 @router.message(WorkForm.language)
 async def work_language(message: Message, state: FSMContext) -> None:
-    await state.update_data(language=(message.text or "").strip()[:40])
+    if message.text not in LANGUAGES:
+        await message.answer("Выберите язык кнопкой из списка.")
+        return
+    await state.update_data(language=message.text)
     await state.set_state(WorkForm.requirements)
     await message.answer("Требования преподавателя? Напишите их или отправьте «нет»:", reply_markup=ReplyKeyboardRemove())
 
@@ -122,7 +133,11 @@ async def start_presentation(message: Message, state: FSMContext) -> None:
 
 @router.message(PresentationForm.topic)
 async def presentation_topic(message: Message, state: FSMContext) -> None:
-    await state.update_data(topic=(message.text or "").strip()[:300])
+    value = (message.text or "").strip()
+    if not value:
+        await message.answer("Тема не должна быть пустой. Напишите тему презентации:")
+        return
+    await state.update_data(topic=value[:300])
     await state.set_state(PresentationForm.slides)
     await message.answer("Сколько слайдов нужно? Укажите число от 3 до 20:")
 
@@ -132,19 +147,22 @@ async def presentation_slides(message: Message, state: FSMContext) -> None:
     try:
         slides = int((message.text or "").strip())
     except ValueError:
-        await message.answer("Введите число от 3 до 20.")
+        await message.answer("Введите целое число от 3 до 20.")
         return
     if not 3 <= slides <= 20:
         await message.answer("Количество слайдов должно быть от 3 до 20.")
         return
     await state.update_data(slides=str(slides))
     await state.set_state(PresentationForm.language)
-    await message.answer("Выберите язык:", reply_markup=options_keyboard(["Русский", "Кыргызский", "English"]))
+    await message.answer("Выберите язык:", reply_markup=options_keyboard(LANGUAGES))
 
 
 @router.message(PresentationForm.language)
 async def presentation_language(message: Message, state: FSMContext) -> None:
-    await state.update_data(language=(message.text or "").strip()[:40])
+    if message.text not in LANGUAGES:
+        await message.answer("Выберите язык кнопкой из списка.")
+        return
+    await state.update_data(language=message.text)
     await state.set_state(PresentationForm.style)
     await message.answer("Какой стиль оформления предпочитаете?", reply_markup=options_keyboard(["Минималистичный", "Академический", "Яркий"]))
 
@@ -165,5 +183,5 @@ async def presentation_style(message: Message, state: FSMContext, db, webapp_url
 @router.message(F.text.in_(MENU_ITEMS))
 async def planned_modules(message: Message) -> None:
     await message.answer(
-        "Этот раздел включён в план проекта, но ещё не реализован. Сейчас работают учебные планы для работ и структура презентаций."
+        "Этот раздел пока не реализован. На первом этапе доступны учебный план работы и структура презентации."
     )
